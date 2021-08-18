@@ -1,3 +1,5 @@
+
+
 #+BEGIN_SRC emacs-lisp
   (use-package emacs
     :config
@@ -41,13 +43,6 @@
     :ensure nil
     :config (column-number-mode +1))
 #+END_SRC
-
-*** Flycheck
-On-the-fly syntax checking extension
-#+BEGIN_SRC emacs-lisp
-  (use-package flycheck :config (global-flycheck-mode +1))
-#+END_SRC
-
 *** Better defaults
 #+BEGIN_SRC emacs-lisp
   (use-package better-defaults)
@@ -58,9 +53,93 @@ On-the-fly syntax checking extension
   (use-package material-theme :config (load-theme 'material t))
 #+END_SRC
 
-*** Elpy
+*** Flycheck
 #+BEGIN_SRC emacs-lisp
-  (use-package elpy :hook (python-mode . elpy-enable))
+    (use-package flycheck
+      :config (global-flycheck-mode +1))
+#+END_SRC
+
+* Programming stuff
+** Python
+*** Python-mode
+    Just use python-mode hook to set up flake8 as checker
+#+BEGIN_SRC emacs-lisp
+  (use-package python
+    :ensure nil
+    :hook (python-mode . (lambda () (flycheck-add-next-checker 'lsp 'python-flake8))))
+#+END_SRC
+
+*** LSP - Pyright
+#+BEGIN_SRC emacs-lisp
+  ;; (use-package lsp-pyright
+  ;;   :ensure t
+  ;;   :hook (python-mode . (lambda ()
+  ;;                          (require 'lsp-pyright)
+  ;;                          (lsp))))  ; or lsp-deferred
+#+END_SRC
+
+*** LSP - MS
+#+BEGIN_SRC emacs-lisp
+  (use-package lsp-python-ms
+    :ensure t
+    :init (setq lsp-python-ms-auto-install-server t)
+    :hook (python-mode . (lambda ()
+                            (require 'lsp-python-ms)
+                            (lsp))))  ; or lsp-deferred
+#+END_SRC
+
+*** LSP-mode
+#+BEGIN_SRC emacs-lisp
+  (use-package lsp-ui)
+#+END_SRC
+
+*** Pyenv
+#+BEGIN_SRC emacs-lisp
+  (use-package pyvenv)
+#+END_SRC
+
+*** Black
+#+BEGIN_SRC emacs-lisp
+  (use-package python-black)
+
+#+END_SRC
+
+*** flyckeck config
+#+BEGIN_SRC emacs-lisp
+  (flycheck-define-checker python-flake8
+    "A Python syntax and style checker using Flake8.
+
+  Requires Flake8 3.0 or newer. See URL
+  `https://flake8.readthedocs.io/'."
+    ;; Not calling flake8 directly makes it easier to switch between different
+    ;; Python versions; see https://github.com/flycheck/flycheck/issues/1055.
+    :command ("python3"
+              (eval (flycheck-python-module-args 'python-flake8 "flake8"))
+              "--format=default"
+              (config-file "--append-config" flycheck-flake8rc)
+              (option "--max-complexity" flycheck-flake8-maximum-complexity nil
+                      flycheck-option-int)
+              (option "--max-line-length" flycheck-flake8-maximum-line-length nil
+                      flycheck-option-int)
+              (eval (when buffer-file-name
+                      (concat "--stdin-display-name=" buffer-file-name)))
+              "-")
+    :standard-input t
+    :working-directory flycheck-flake8--find-project-root
+    :error-filter (lambda (errors)
+                    (let ((errors (flycheck-sanitize-errors errors)))
+                      (seq-map #'flycheck-flake8-fix-error-level errors)))
+    :error-patterns
+    ((warning line-start
+              (file-name) ":" line ":" (optional column ":") " "
+              (id (one-or-more (any alpha)) (one-or-more digit)) " "
+              (message (one-or-more not-newline))
+              line-end))
+    :enabled (lambda ()
+               (or (not (flycheck-python-needs-module-p 'python-flake8))
+                   (flycheck-python-find-module 'python-flake8 "flake8")))
+    :verify (lambda (_) (flycheck-python-verify-module 'python-flake8 "flake8"))
+    :modes python-mode)
 #+END_SRC
 
 *** Treemacs
