@@ -1,16 +1,17 @@
-
-
+* General Improvements
+*** Cleanup frame
 #+BEGIN_SRC emacs-lisp
   (use-package emacs
     :config
     (setq frame-title-format '("emacs"))
+    (tool-bar-mode -1) ;; Disable tool bar
+    (menu-bar-mode -1) ;; Disable menu bar
+    (setq inhibit-startup-screen t) ;; Disable startup screen
+    (setq initial-frame-alist '((fullscreen . maximized))))
+#+END_SRC
 
-    (tool-bar-mode -1)
-    (menu-bar-mode -1)
-
-    ;; Disable startup screen
-    (setq inhibit-startup-screen t))
-
+*** Custom split
+#+BEGIN_SRC emacs-lisp
   (use-package emacs
     :ensure nil
     :preface
@@ -37,12 +38,13 @@
     :config (scroll-bar-mode -1))
 #+END_SRC
 
-*** Enable column numbers
+*** Column numbers
 #+BEGIN_SRC emacs-lisp
   (use-package simple
     :ensure nil
     :config (column-number-mode +1))
 #+END_SRC
+
 *** Better defaults
 #+BEGIN_SRC emacs-lisp
   (use-package better-defaults)
@@ -53,22 +55,16 @@
   (use-package material-theme :config (load-theme 'material t))
 #+END_SRC
 
-*** Flycheck
+
+* Programming stuff
+** Flycheck
+   Used to mark errors live in buffers
 #+BEGIN_SRC emacs-lisp
     (use-package flycheck
       :config (global-flycheck-mode +1))
 #+END_SRC
 
-* Programming stuff
 ** Python
-*** Python-mode
-    Just use python-mode hook to set up flake8 as checker
-#+BEGIN_SRC emacs-lisp
-  (use-package python
-    :ensure nil
-    :hook (python-mode . (lambda () (flycheck-add-next-checker 'lsp 'python-flake8))))
-#+END_SRC
-
 *** LSP - Pyright
 #+BEGIN_SRC emacs-lisp
   ;; (use-package lsp-pyright
@@ -83,12 +79,35 @@
   (use-package lsp-python-ms
     :ensure t
     :init (setq lsp-python-ms-auto-install-server t)
-    :hook (python-mode . (lambda ()
+    :hook
+    (python-mode . (lambda ()
                             (require 'lsp-python-ms)
-                            (lsp))))  ; or lsp-deferred
+                            (lsp)
+                            (sleep-for 1)
+                            (flycheck-remove-next-checker 'python-flake8 'python-mypy)
+                            (flycheck-remove-next-checker 'python-flake8 'python-pylint)
+                            (flycheck-add-next-checker 'lsp 'python-flake8)
+                            ))  ; or lsp-deferred
+    ;; (lsp-after-initialize-hook . (lambda ()
+    ;;                                (flycheck-remove-next-checker 'python-flake8 'python-mypy)
+    ;;                                (flycheck-remove-next-checker 'python-flake8 'python-pylint)
+    ;;                                (flycheck-add-next-checker 'lsp 'python-flake8)
+    ;;                                ))
+    )
 #+END_SRC
-
-*** LSP-mode
+*** Python hook
+#+BEGIN_SRC emacs-lisp
+  ;; (use-package python
+  ;;   :ensure nil
+  ;;   :hook
+  ;;   (python-mode . (lambda ()
+  ;;                    (require 'lsp-mode)
+  ;;                    (flycheck-remove-next-checker 'python-flake8 'python-mypy)
+  ;;                    (flycheck-remove-next-checker 'python-flake8 'python-pylint)
+  ;;                    (flycheck-add-next-checker 'lsp 'python-flake8)
+  ;;                    )))
+#+END_SRC
+*** LSP-UI
 #+BEGIN_SRC emacs-lisp
   (use-package lsp-ui)
 #+END_SRC
@@ -104,44 +123,7 @@
 
 #+END_SRC
 
-*** flyckeck config
-#+BEGIN_SRC emacs-lisp
-  (flycheck-define-checker python-flake8
-    "A Python syntax and style checker using Flake8.
-
-  Requires Flake8 3.0 or newer. See URL
-  `https://flake8.readthedocs.io/'."
-    ;; Not calling flake8 directly makes it easier to switch between different
-    ;; Python versions; see https://github.com/flycheck/flycheck/issues/1055.
-    :command ("python3"
-              (eval (flycheck-python-module-args 'python-flake8 "flake8"))
-              "--format=default"
-              (config-file "--append-config" flycheck-flake8rc)
-              (option "--max-complexity" flycheck-flake8-maximum-complexity nil
-                      flycheck-option-int)
-              (option "--max-line-length" flycheck-flake8-maximum-line-length nil
-                      flycheck-option-int)
-              (eval (when buffer-file-name
-                      (concat "--stdin-display-name=" buffer-file-name)))
-              "-")
-    :standard-input t
-    :working-directory flycheck-flake8--find-project-root
-    :error-filter (lambda (errors)
-                    (let ((errors (flycheck-sanitize-errors errors)))
-                      (seq-map #'flycheck-flake8-fix-error-level errors)))
-    :error-patterns
-    ((warning line-start
-              (file-name) ":" line ":" (optional column ":") " "
-              (id (one-or-more (any alpha)) (one-or-more digit)) " "
-              (message (one-or-more not-newline))
-              line-end))
-    :enabled (lambda ()
-               (or (not (flycheck-python-needs-module-p 'python-flake8))
-                   (flycheck-python-find-module 'python-flake8 "flake8")))
-    :verify (lambda (_) (flycheck-python-verify-module 'python-flake8 "flake8"))
-    :modes python-mode)
-#+END_SRC
-
+* Other stuff
 *** Treemacs
 #+BEGIN_SRC emacs-lisp
   (use-package treemacs
