@@ -7,7 +7,9 @@
     (tool-bar-mode -1) ;; Disable tool bar
     (menu-bar-mode -1) ;; Disable menu bar
     (setq inhibit-startup-screen t) ;; Disable startup screen
-    (setq initial-frame-alist '((fullscreen . maximized))))
+    (setq initial-frame-alist '((fullscreen . maximized)))
+    ;; TODO: set font here
+    )
 #+END_SRC
 
 *** Custom split
@@ -25,6 +27,9 @@
 #+END_SRC
 
 *** Delsel
+This file makes the active region be pending delete, meaning that
+text inserted while the region is active will replace the region contents.
+This is a popular behavior of personal computers text editors.
 #+BEGIN_SRC emacs-lisp
   (use-package delsel
     :ensure nil
@@ -38,14 +43,17 @@
     :config (scroll-bar-mode -1))
 #+END_SRC
 
-*** Column numbers
+*** Column & Line numbers
 #+BEGIN_SRC emacs-lisp
   (use-package simple
     :ensure nil
-    :config (column-number-mode +1))
+    :config
+    (column-number-mode +1)
+    (global-display-line-numbers-mode -1))
 #+END_SRC
 
 *** Better defaults
+Fixing weird quirks and poor defaults
 #+BEGIN_SRC emacs-lisp
   (use-package better-defaults)
 #+END_SRC
@@ -55,16 +63,124 @@
   (use-package material-theme :config (load-theme 'material t))
 #+END_SRC
 
+*** ErgoEmacs
+ErgoEmacs keybindings improves GNU Emacs for people who did not grow up with emacs.
+User interface is based on common modern software interface familiar to most people today,
+such as using 【Ctrl+C】 key for Copy,【Ctrl+Z】 for undo, 【Ctrl+O】 for Open file.
+#+BEGIN_SRC emacs-lisp
+  ;; (use-package ergoemacs-mode
+  ;;   :config
+  ;;   (setq ergoemacs-variant nil)
+  ;;   (ergoemacs-mode 1))
+#+END_SRC
+
+*** yolo
+Kill processes without confirmation, disable backup and lock files
+#+BEGIN_SRC emacs-lisp
+  (use-package files
+    :ensure nil
+    :config
+    (setq confirm-kill-processes nil
+          create-lockfiles nil
+          make-backup-files nil))
+#+END_SRC
+
+*** Autorevert
+Auto refreshes every 2 seconds to detect changes outside emacs
+#+BEGIN_SRC emacs-lisp
+  (use-package autorevert
+    :ensure nil
+    :config
+    (global-auto-revert-mode +1)
+    (setq auto-revert-interval 2
+          auto-revert-check-vc-info t
+          global-auto-revert-non-file-buffers t
+          auto-revert-verbose nil))
+#+END_SRC
+
+*** Ediff
+side-by-side default for ediff.
+#+BEGIN_SRC emacs-lisp
+  (use-package ediff
+    :ensure nil
+    :config
+    (setq ediff-window-setup-function #'ediff-setup-windows-plain)
+    (setq ediff-split-window-function #'split-window-horizontally))
+#+END_SRC
+
+*** Clean up whitespaces
+#+BEGIN_SRC emacs-lisp
+  (use-package whitespace
+    :ensure nil
+    :hook (before-save . whitespace-cleanup))
+    #+END_SRC
+
+*** Good Scroll
+#+BEGIN_SRC emacs-lisp
+  ;;     (use-package good-scroll
+  ;; :hook (after-init . good-scroll-mode))
+    #+END_SRC
 
 * Programming stuff
-** Flycheck
+** Common
+*** Company
+Company is a text completion framework for Emacs. The name stands for "complete anything".
+It uses pluggable back-ends and front-ends to retrieve and display completion candidates.
+#+BEGIN_SRC emacs-lisp
+  (use-package company
+    :diminish company-mode
+    :hook (prog-mode . company-mode)
+    ;; :config
+    ;; (setq company-minimum-prefix-length 1
+    ;;       company-idle-delay 0.1
+    ;;       company-selection-wrap-around t
+    ;;       company-tooltip-align-annotations t
+    ;;       company-frontends '(company-pseudo-tooltip-frontend ; show tooltip even for single candidate
+    ;;                           company-echo-metadata-frontend))
+    ;; (define-key company-active-map (kbd "C-n") 'company-select-next)
+    ;; (define-key company-active-map (kbd "C-p") 'company-select-previous)
+    )
+#+END_SRC
+
+*** Auto-pairing quotes and parentheses etc.
+#+BEGIN_SRC emacs-lisp
+  (use-package elec-pair
+    :ensure nil
+    :hook (prog-mode . electric-pair-mode))
+#+END_SRC
+
+*** Magit
+#+BEGIN_SRC emacs-lisp
+  (use-package magit)
+
+  #+END_SRC
+
+
+*** LSP-mode
+#+BEGIN_SRC emacs-lisp
+  (use-package lsp-mode)
+  (use-package lsp-ui)
+#+END_SRC
+
+*** Flycheck
    Used to mark errors live in buffers
 #+BEGIN_SRC emacs-lisp
     (use-package flycheck
       :config (global-flycheck-mode +1))
 #+END_SRC
 
+*** Diff hl
+diff-hl-mode highlights uncommitted changes on the left side of the window (area also known as the "gutter"),
+allows you to jump between and revert them selectively.
+#+BEGIN_SRC emacs-lisp
+  (use-package diff-hl
+    :diminish diff-hl
+    :config
+    (global-diff-hl-mode 1))
+    #+END_SRC
+
 ** Python
+
 *** LSP - Pyright
 #+BEGIN_SRC emacs-lisp
   ;; (use-package lsp-pyright
@@ -88,28 +204,13 @@
                             (flycheck-remove-next-checker 'python-flake8 'python-pylint)
                             (flycheck-add-next-checker 'lsp 'python-flake8)
                             ))  ; or lsp-deferred
-    ;; (lsp-after-initialize-hook . (lambda ()
-    ;;                                (flycheck-remove-next-checker 'python-flake8 'python-mypy)
-    ;;                                (flycheck-remove-next-checker 'python-flake8 'python-pylint)
-    ;;                                (flycheck-add-next-checker 'lsp 'python-flake8)
-    ;;                                ))
     )
 #+END_SRC
-*** Python hook
+
+*** Black
 #+BEGIN_SRC emacs-lisp
-  ;; (use-package python
-  ;;   :ensure nil
-  ;;   :hook
-  ;;   (python-mode . (lambda ()
-  ;;                    (require 'lsp-mode)
-  ;;                    (flycheck-remove-next-checker 'python-flake8 'python-mypy)
-  ;;                    (flycheck-remove-next-checker 'python-flake8 'python-pylint)
-  ;;                    (flycheck-add-next-checker 'lsp 'python-flake8)
-  ;;                    )))
-#+END_SRC
-*** LSP-UI
-#+BEGIN_SRC emacs-lisp
-  (use-package lsp-ui)
+  (use-package python-black)
+
 #+END_SRC
 
 *** Pyenv
@@ -117,9 +218,28 @@
   (use-package pyvenv)
 #+END_SRC
 
-*** Black
+** Groovy
 #+BEGIN_SRC emacs-lisp
-  (use-package python-black)
+    (use-package groovy-mode)
+#+END_SRC
+
+** Web
+Markdown mode and Web mode, the latter covers our usages of HTML/CSS/JS/JSX/TS/TSX/JSON.
+#+BEGIN_SRC emacs-lisp
+  (use-package markdown-mode
+    :hook (markdown-mode . visual-line-mode))
+
+  (use-package web-mode
+    :mode (("\\.html?\\'" . web-mode)
+           ("\\.css\\'"   . web-mode)
+           ("\\.jsx?\\'"  . web-mode)
+           ("\\.tsx?\\'"  . web-mode)
+           ("\\.json\\'"  . web-mode))
+    :config
+    (setq web-mode-markup-indent-offset 2) ; HTML
+    (setq web-mode-css-indent-offset 2)    ; CSS
+    (setq web-mode-code-indent-offset 2)   ; JS/JSX/TS/TSX
+    (setq web-mode-content-types-alist '(("jsx" . "\\.js[x]?\\'"))))
 
 #+END_SRC
 
@@ -204,4 +324,75 @@
 
   (use-package lsp-treemacs
     :after (treemacs lsp))
+#+END_SRC
+
+*** Dashboard
+#+BEGIN_SRC emacs-lisp
+  (use-package dashboard
+    :config
+    (dashboard-setup-startup-hook)
+    (setq dashboard-startup-banner 'logo
+          dashboard-banner-logo-title "emacs"
+          dashboard-items nil
+          dashboard-set-footer nil))
+#+END_SRC
+
+*** Ido
+Lets you interactively do things with buffers and files. As an example, while searching for a file with C-x C-f,
+ido can helpfully suggest the files whose paths are closest to your current string, allowing you to find your files more quickly.
+#+BEGIN_SRC emacs-lisp
+  (use-package ido
+    :config
+    (ido-mode +1)
+    (setq ido-everywhere t
+          ido-enable-flex-matching t))
+
+  (use-package ido-vertical-mode
+    :config
+    (ido-vertical-mode +1)
+    (setq ido-vertical-define-keys 'C-n-C-p-up-and-down))
+
+  (use-package ido-completing-read+
+    :config (ido-ubiquitous-mode +1))
+
+  (use-package flx-ido
+    :config (flx-ido-mode +1))
+#+END_SRC
+
+*** Org Mode
+Some minimal org mode tweaks: org-bullets gives our headings (h1, h2,
+h3...) a more visually pleasing look.
+#+BEGIN_SRC emacs-lisp
+  (use-package org
+    :hook ((org-mode . visual-line-mode)
+           (org-mode . org-indent-mode)))
+
+  (use-package org-bullets :hook (org-mode . org-bullets-mode))
+#+END_SRC
+
+*** Elpa mirror
+#+BEGIN_SRC emacs-lisp
+  (use-package elpa-mirror
+    :config
+    (setq elpamr-enable-log t)
+    )
+#+END_SRC
+
+*** Diminish
+The diminish package is used to hide unimportant minor modes in the
+modeline.
+#+BEGIN_SRC emacs-lisp
+  (use-package diminish
+    :demand t)
+#+END_SRC
+
+*** Which-key
+Provides us with hints on available keystroke combinations.
+#+BEGIN_SRC emacs-lisp
+  (use-package which-key
+    :diminish which-key-mode
+    :config
+    (which-key-mode +1)
+    (setq which-key-idle-delay 0.4
+          which-key-idle-secondary-delay 0.4))
 #+END_SRC
