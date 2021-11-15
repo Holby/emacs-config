@@ -506,6 +506,7 @@ h3...) a more visually pleasing look.
   (use-package elpa-mirror
     :config
     (setq elpamr-enable-log t)
+    (setq elpamr-default-output-directory "~/.emacs.d/packages")
     )
 #+END_SRC
 
