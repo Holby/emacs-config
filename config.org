@@ -60,7 +60,9 @@ Fixing weird quirks and poor defaults
 
 *** Theme
 #+BEGIN_SRC emacs-lisp
-  (use-package material-theme :config (load-theme 'material t))
+  ;;(use-package material-theme :config (load-theme 'material t))
+  ;;(use-package solarized-theme :config (load-theme 'solarized-dark t))
+  (use-package doom-themes :config (load-theme 'doom-one t))
 #+END_SRC
 
 *** ErgoEmacs
@@ -119,7 +121,16 @@ side-by-side default for ediff.
 #+BEGIN_SRC emacs-lisp
   ;;     (use-package good-scroll
   ;; :hook (after-init . good-scroll-mode))
-    #+END_SRC
+#+END_SRC
+
+*** Ignore custom set variables
+#+BEGIN_SRC emacs-lisp
+  (use-package cus-edit
+    :ensure nil
+    :config
+    (setq custom-file (concat user-emacs-directory "to-be-dumped.el")))
+#+END_SRC
+
 
 * Programming stuff
 ** Common
@@ -155,7 +166,6 @@ It uses pluggable back-ends and front-ends to retrieve and display completion ca
 
   #+END_SRC
 
-
 *** LSP-mode
 #+BEGIN_SRC emacs-lisp
   (use-package lsp-mode)
@@ -178,6 +188,121 @@ allows you to jump between and revert them selectively.
     :config
     (global-diff-hl-mode 1))
     #+END_SRC
+
+** VHDL
+*** LSP - GHDL
+#+BEGIN_SRC emacs-lisp
+  ;; (use-package lsp-mode
+  ;;     :demand t
+  ;;     :config
+  ;;     (setq lsp-vhdl-server-path (executable-find "ghdl-ls")
+  ;;           lsp-vhdl-server 'ghdl-ls
+  ;;           lsp-use-native-json t
+  ;;           lsp-enable-indentation t
+  ;;           lsp-keep-workspace-alive t
+  ;;           lsp-enable-folding t
+  ;;           lsp-enable-xref t
+  ;;           lsp-prefer-flymake nil
+  ;;           lsp-auto-configure t
+  ;;           lsp-enable-snippet nil
+  ;;           lsp-restart 'auto-restart
+  ;;           lsp-enable-completion-at-point t
+  ;;           lsp-enable-imenu nil
+  ;;           )
+
+  ;;     (add-hook 'vhdl-mode-hook 'lsp))
+#+END_SRC
+
+*** LSP - Rust hdl
+#+BEGIN_SRC emacs-lisp
+  ;; (use-package lsp-mode
+  ;;   :demand t
+  ;;   :config
+  ;;   (setq lsp-vhdl-server-path (executable-find "vhdl_ls")
+  ;;         lsp-vhdl-server 'ghdl-ls
+  ;;         lsp-use-native-json t
+  ;;         lsp-enable-indentation t
+  ;;         lsp-keep-workspace-alive t
+  ;;         lsp-enable-folding t
+  ;;         lsp-enable-xref t
+  ;;         lsp-prefer-flymake nil
+  ;;         lsp-auto-configure t
+  ;;         lsp-enable-snippet nil
+  ;;         lsp-restart 'auto-restart
+  ;;         lsp-enable-completion-at-point t
+  ;;         lsp-enable-imenu nil
+  ;;         )
+
+  ;;   (add-hook 'vhdl-mode-hook 'lsp))
+#+END_SRC
+
+*** LSP GHDL + Rust hdl
+#+BEGIN_SRC emacs-lisp
+  (use-package lsp-mode
+    :demand t
+    :config
+    ;; Register vhdl-ls(rust_hdl) as a add-on checker
+    (lsp-register-client
+     (make-lsp-client :new-connection (lsp-stdio-connection (executable-find "vhdl_ls"))
+                      :major-modes '(vhdl-mode)
+                      :server-id 'vhdl-lsp
+                      :add-on? t))
+    (add-to-list 'lsp-language-id-configuration '(vhdl-mode . "vhdl-mode"))
+    (setq lsp-vhdl-server-path (executable-find "ghdl-ls")
+          lsp-vhdl-server 'ghdl-ls
+          lsp-use-native-json t
+          lsp-enable-indentation t
+          lsp-keep-workspace-alive t
+          lsp-enable-folding t
+          lsp-enable-xref t
+          lsp-prefer-flymake nil
+          lsp-auto-configure t
+          lsp-enable-snippet nil
+          lsp-restart 'auto-restart
+          lsp-enable-completion-at-point t
+          lsp-enable-imenu nil
+          )
+
+    (add-hook 'vhdl-mode-hook 'lsp))
+#+END_SRC
+
+*** VHDL-Mode
+#+BEGIN_SRC emacs-lisp
+  (use-package vhdl-mode
+    :ensure nil
+    :preface
+    ;; Disable lsp-mode before beautify, workaround to avoid ghdl-ls freeze
+    (defun vhdl-beautify-buffer-lsp ()
+      (interactive)
+      (lsp-disconnect)
+      (vhdl-beautify-buffer)
+      (lsp))
+    (defun vhdl-beautify-region-lsp (beg end)
+      (interactive "r")
+      (lsp-disconnect)
+      (vhdl-beautify-region beg end)
+      (lsp))
+    :config
+    (setq vhdl-stutter-mode t
+          vhdl-electric-mode t
+          vhdl-indent-tabs-mode nil
+          vhdl-basic-offset 3
+          vhdl-use-direct-instantiation 'always
+          vhdl-clock-edge-condition 'function
+          vhdl-clock-name "clk"
+          vhdl-reset-name "reset"
+          vhdl-clock-rising-edge t
+          vhdl-reset-active-high t
+          vhdl-reset-kind 'sync
+          vhdl-prompt-for-comments nil
+          vhdl-self-insert-comments nil
+          vhdl-highlight-special-words t
+          )
+    :bind (
+           :map vhdl-mode-map
+           ("C-c C-b" . vhdl-beautify-buffer-lsp)
+           ("C-c M-b" . vhdl-beautify-region-lsp)))
+#+END_SRC
 
 ** Python
 
@@ -226,20 +351,26 @@ allows you to jump between and revert them selectively.
 ** Web
 Markdown mode and Web mode, the latter covers our usages of HTML/CSS/JS/JSX/TS/TSX/JSON.
 #+BEGIN_SRC emacs-lisp
-  (use-package markdown-mode
-    :hook (markdown-mode . visual-line-mode))
+       (use-package markdown-mode
+         :hook (markdown-mode . visual-line-mode))
 
-  (use-package web-mode
-    :mode (("\\.html?\\'" . web-mode)
-           ("\\.css\\'"   . web-mode)
-           ("\\.jsx?\\'"  . web-mode)
-           ("\\.tsx?\\'"  . web-mode)
-           ("\\.json\\'"  . web-mode))
-    :config
-    (setq web-mode-markup-indent-offset 2) ; HTML
-    (setq web-mode-css-indent-offset 2)    ; CSS
-    (setq web-mode-code-indent-offset 2)   ; JS/JSX/TS/TSX
-    (setq web-mode-content-types-alist '(("jsx" . "\\.js[x]?\\'"))))
+       (use-package web-mode
+         :mode (("\\.html?\\'" . web-mode)
+                ("\\.css\\'"   . web-mode)
+                ("\\.jsx?\\'"  . web-mode)
+                ("\\.tsx?\\'"  . web-mode)
+                ("\\.json\\'"  . web-mode))
+         :config
+         (setq web-mode-markup-indent-offset 2) ; HTML
+         (setq web-mode-css-indent-offset 2)    ; CSS
+         (setq web-mode-code-indent-offset 2)   ; JS/JSX/TS/TSX
+         (setq web-mode-content-types-alist '(("jsx" . "\\.js[x]?\\'"))))
+
+       (use-package xml
+         :config
+          (setq nxml-attribute-indent 3)
+          (setq nxml-child-indent 3)
+          (setq nxml-outline-child-indent 3))
 
 #+END_SRC
 
