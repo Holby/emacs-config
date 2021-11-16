@@ -323,6 +323,7 @@ allows you to jump between and revert them selectively.
     :init (setq lsp-python-ms-auto-install-server t)
     :hook
     (python-mode . (lambda ()
+                            (setq lsp-python-ms-executable "~/.emacs.d/pyenv/bin/python")
                             (require 'lsp-python-ms)
                             (lsp)
                             (sleep-for 1)
