@@ -55,7 +55,8 @@ This is a popular behavior of personal computers text editors.
 *** Better defaults
 Fixing weird quirks and poor defaults
 #+BEGIN_SRC emacs-lisp
-  (use-package better-defaults)
+  (use-package better-defaults
+    :ensure nil)
 #+END_SRC
 
 *** Theme
