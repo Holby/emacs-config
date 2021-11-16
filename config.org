@@ -1,3 +1,15 @@
+* Readme
+My personal emacs config, mainly used for VHDL and Python.
+Inspired by: https://github.com/ianyepan/yay-evil-emacs
+
+Some python tools requires an environment to run in.
+Create one and install the requirements by:
+#+BEGIN_SRC bash
+  cd ~/.emacs.d
+  python3 -m venv pyenv
+  source pyenv/bin/activate
+  pip install -r requirements.txt
+#+END_SRC
 * General Improvements
 *** Cleanup frame
 #+BEGIN_SRC emacs-lisp
@@ -7,11 +19,17 @@
     (tool-bar-mode -1) ;; Disable tool bar
     (menu-bar-mode -1) ;; Disable menu bar
     (setq inhibit-startup-screen t) ;; Disable startup screen
-    (setq initial-frame-alist '((fullscreen . maximized)))
-    ;; TODO: set font here
+    (setq initial-frame-alist '((fullscreen . maximized))))
+#+END_SRC
+*** Set font
+#+BEGIN_SRC emacs-lisp
+  (use-package emacs
+    :ensure nil
+    :config
+    (when (member "DejaVu Sans Mono" (font-family-list))
+      (set-frame-font "DejaVu Sans Mono" t t))
     )
 #+END_SRC
-
 *** Custom split
 #+BEGIN_SRC emacs-lisp
   (use-package emacs
@@ -52,13 +70,6 @@ This is a popular behavior of personal computers text editors.
     (global-display-line-numbers-mode -1))
 #+END_SRC
 
-*** Better defaults
-Fixing weird quirks and poor defaults
-#+BEGIN_SRC emacs-lisp
-  (use-package better-defaults
-    :ensure nil)
-#+END_SRC
-
 *** Theme
 #+BEGIN_SRC emacs-lisp
   ;;(use-package material-theme :config (load-theme 'material t))
@@ -71,10 +82,10 @@ ErgoEmacs keybindings improves GNU Emacs for people who did not grow up with ema
 User interface is based on common modern software interface familiar to most people today,
 such as using 【Ctrl+C】 key for Copy,【Ctrl+Z】 for undo, 【Ctrl+O】 for Open file.
 #+BEGIN_SRC emacs-lisp
-  ;; (use-package ergoemacs-mode
-  ;;   :config
-  ;;   (setq ergoemacs-variant nil)
-  ;;   (ergoemacs-mode 1))
+  (use-package ergoemacs-mode
+    :config
+    (setq ergoemacs-variant nil)
+    (ergoemacs-mode -1))
 #+END_SRC
 
 *** yolo
@@ -132,7 +143,6 @@ side-by-side default for ediff.
     (setq custom-file (concat user-emacs-directory "to-be-dumped.el")))
 #+END_SRC
 
-
 * Programming stuff
 ** Common
 *** Company
@@ -176,8 +186,11 @@ It uses pluggable back-ends and front-ends to retrieve and display completion ca
 *** Flycheck
    Used to mark errors live in buffers
 #+BEGIN_SRC emacs-lisp
-    (use-package flycheck
-      :config (global-flycheck-mode +1))
+  (use-package flycheck
+    :config
+    (global-flycheck-mode +1)
+    (setq flycheck-python-flake8-executable "~/.emacs.d/pyenv/bin/python"
+          flycheck-python-pylint-executable "~/.emacs.d/pyenv/bin/python"))
 #+END_SRC
 
 *** Diff hl
@@ -188,7 +201,7 @@ allows you to jump between and revert them selectively.
     :diminish diff-hl
     :config
     (global-diff-hl-mode 1))
-    #+END_SRC
+#+END_SRC
 
 ** VHDL
 *** LSP - GHDL
@@ -306,7 +319,6 @@ allows you to jump between and revert them selectively.
 #+END_SRC
 
 ** Python
-
 *** LSP - Pyright
 #+BEGIN_SRC emacs-lisp
   ;; (use-package lsp-pyright
@@ -323,23 +335,31 @@ allows you to jump between and revert them selectively.
     :init (setq lsp-python-ms-auto-install-server t)
     :hook
     (python-mode . (lambda ()
-                            (setq lsp-python-ms-executable "~/.emacs.d/pyenv/bin/python")
-                            (require 'lsp-python-ms)
-                            (lsp)
-                            (sleep-for 1)
-                            (flycheck-remove-next-checker 'python-flake8 'python-mypy)
-                            (flycheck-remove-next-checker 'python-flake8 'python-pylint)
-                            (flycheck-add-next-checker 'lsp 'python-flake8)
-                            ))  ; or lsp-deferred
+                     (setq lsp-python-ms-python-executable "~/.emacs.d/pyenv/bin/python")
+                     (setq lsp-python-ms-executable "~/.emacs.d/.cache/lsp/mspyls/Microsoft.Python.LanguageServer")
+                     (require 'lsp-python-ms)
+                     (lsp)
+                     (sleep-for 1)
+                     (flycheck-remove-next-checker 'python-flake8 'python-mypy)
+                     ;;(flycheck-remove-next-checker 'python-flake8 'python-pylint)
+                     (flycheck-add-next-checker 'lsp 'python-flake8)))  ; or lsp-deferred
     )
 #+END_SRC
 
 *** Black
 #+BEGIN_SRC emacs-lisp
-  (use-package python-black)
-
+  (use-package python-black
+    :config
+    (setq python-black-command "~/.emacs.d/pyenv/bin/black"
+          python-black-macchiato-command "~/.emacs.d/pyenv/bin/black-macchiato"))
 #+END_SRC
-
+*** Python Mode
+#+BEGIN_SRC emacs-lisp
+    (use-package python-mode
+      :ensure nil
+      :bind (:map python-mode-map ("C-c C-b" . python-black-buffer)
+                  ("C-c M-b" . python-black-region)))
+#+END_SRC
 *** Pyenv
 #+BEGIN_SRC emacs-lisp
   (use-package pyvenv)
@@ -353,26 +373,26 @@ allows you to jump between and revert them selectively.
 ** Web
 Markdown mode and Web mode, the latter covers our usages of HTML/CSS/JS/JSX/TS/TSX/JSON.
 #+BEGIN_SRC emacs-lisp
-       (use-package markdown-mode
-         :hook (markdown-mode . visual-line-mode))
+  (use-package markdown-mode
+    :hook (markdown-mode . visual-line-mode))
 
-       (use-package web-mode
-         :mode (("\\.html?\\'" . web-mode)
-                ("\\.css\\'"   . web-mode)
-                ("\\.jsx?\\'"  . web-mode)
-                ("\\.tsx?\\'"  . web-mode)
-                ("\\.json\\'"  . web-mode))
-         :config
-         (setq web-mode-markup-indent-offset 2) ; HTML
-         (setq web-mode-css-indent-offset 2)    ; CSS
-         (setq web-mode-code-indent-offset 2)   ; JS/JSX/TS/TSX
-         (setq web-mode-content-types-alist '(("jsx" . "\\.js[x]?\\'"))))
+  (use-package web-mode
+    :mode (("\\.html?\\'" . web-mode)
+           ("\\.css\\'"   . web-mode)
+           ("\\.jsx?\\'"  . web-mode)
+           ("\\.tsx?\\'"  . web-mode)
+           ("\\.json\\'"  . web-mode))
+    :config
+    (setq web-mode-markup-indent-offset 2) ; HTML
+    (setq web-mode-css-indent-offset 2)    ; CSS
+    (setq web-mode-code-indent-offset 2)   ; JS/JSX/TS/TSX
+    (setq web-mode-content-types-alist '(("jsx" . "\\.js[x]?\\'"))))
 
-       (use-package xml
-         :config
-          (setq nxml-attribute-indent 3)
-          (setq nxml-child-indent 3)
-          (setq nxml-outline-child-indent 3))
+  (use-package xml
+    :config
+    (setq nxml-attribute-indent 3)
+    (setq nxml-child-indent 3)
+    (setq nxml-outline-child-indent 3))
 
 #+END_SRC
 
@@ -529,4 +549,16 @@ Provides us with hints on available keystroke combinations.
     (which-key-mode +1)
     (setq which-key-idle-delay 0.4
           which-key-idle-secondary-delay 0.4))
+#+END_SRC
+
+*** Centaur Tabs
+Aesthetic, modern looking customizable tabs plugin
+#+BEGIN_SRC emacs-lisp
+  ;; (use-package centaur-tabs
+  ;;   :demand
+  ;;   :config
+  ;;   (centaur-tabs-mode t)
+  ;;   :bind
+  ;;   ("C-<prior>" . centaur-tabs-backward)
+  ;;   ("C-<next>" . centaur-tabs-forward))
 #+END_SRC
