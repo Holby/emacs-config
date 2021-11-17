@@ -233,7 +233,7 @@ allows you to jump between and revert them selectively.
   ;;   :demand t
   ;;   :config
   ;;   (setq lsp-vhdl-server-path (executable-find "vhdl_ls")
-  ;;         lsp-vhdl-server 'ghdl-ls
+  ;;         lsp-vhdl-server 'vhdl-ls
   ;;         lsp-use-native-json t
   ;;         lsp-enable-indentation t
   ;;         lsp-keep-workspace-alive t
