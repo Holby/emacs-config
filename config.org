@@ -173,9 +173,8 @@ It uses pluggable back-ends and front-ends to retrieve and display completion ca
 
 *** Magit
 #+BEGIN_SRC emacs-lisp
-  (use-package magit)
-
-  #+END_SRC
+  ;; (use-package magit)
+#+END_SRC
 
 *** LSP-mode
 #+BEGIN_SRC emacs-lisp
@@ -229,55 +228,53 @@ allows you to jump between and revert them selectively.
 
 *** LSP - Rust hdl
 #+BEGIN_SRC emacs-lisp
-  ;; (use-package lsp-mode
-  ;;   :demand t
-  ;;   :config
-  ;;   (setq lsp-vhdl-server-path (executable-find "vhdl_ls")
-  ;;         lsp-vhdl-server 'vhdl-ls
-  ;;         lsp-use-native-json t
-  ;;         lsp-enable-indentation t
-  ;;         lsp-keep-workspace-alive t
-  ;;         lsp-enable-folding t
-  ;;         lsp-enable-xref t
-  ;;         lsp-prefer-flymake nil
-  ;;         lsp-auto-configure t
-  ;;         lsp-enable-snippet nil
-  ;;         lsp-restart 'auto-restart
-  ;;         lsp-enable-completion-at-point t
-  ;;         lsp-enable-imenu nil
-  ;;         )
-
-  ;;   (add-hook 'vhdl-mode-hook 'lsp))
+ (use-package lsp-mode
+   :demand t
+   :config
+   (setq lsp-vhdl-server-path (executable-find "vhdl_ls")
+         lsp-vhdl-server 'vhdl-ls
+         lsp-use-native-json t
+         lsp-enable-indentation t
+         lsp-keep-workspace-alive t
+         lsp-enable-folding t
+         lsp-enable-xref t
+         lsp-prefer-flymake nil
+         lsp-auto-configure t
+         lsp-enable-snippet nil
+         lsp-restart 'auto-restart
+         lsp-enable-completion-at-point t
+         lsp-enable-imenu nil)        
+   (add-hook 'vhdl-mode-hook 'lsp))
 #+END_SRC
 
 *** LSP GHDL + Rust hdl
 #+BEGIN_SRC emacs-lisp
-  (use-package lsp-mode
-    :demand t
-    :config
-    ;; Register vhdl-ls(rust_hdl) as a add-on checker
-    (lsp-register-client
-     (make-lsp-client :new-connection (lsp-stdio-connection (executable-find "vhdl_ls"))
-                      :major-modes '(vhdl-mode)
-                      :server-id 'vhdl-lsp
-                      :add-on? t))
-    (add-to-list 'lsp-language-id-configuration '(vhdl-mode . "vhdl-mode"))
-    (setq lsp-vhdl-server-path (executable-find "ghdl-ls")
-          lsp-vhdl-server 'ghdl-ls
-          lsp-use-native-json t
-          lsp-enable-indentation t
-          lsp-keep-workspace-alive t
-          lsp-enable-folding t
-          lsp-enable-xref t
-          lsp-prefer-flymake nil
-          lsp-auto-configure t
-          lsp-enable-snippet nil
-          lsp-restart 'auto-restart
-          lsp-enable-completion-at-point t
-          lsp-enable-imenu nil
-          )
+ ;; (use-package lsp-mode
+ ;;   :demand t
+ ;;   :config
+ ;;   ;; Register vhdl-ls(rust_hdl) as a add-on checker
+ ;;   (lsp-register-client
+ ;;    (make-lsp-client :new-connection (lsp-stdio-connection (executable-find "vhdl_ls"))
+ ;;                     :major-modes '(vhdl-mode)
+ ;;                     :server-id 'vhdl-lsp
+ ;;                     :add-on? t))
+ ;;   (add-to-list 'lsp-language-id-configuration '(vhdl-mode . "vhdl-mode"))
+ ;;   (setq lsp-vhdl-server-path (executable-find "ghdl-ls")
+ ;;         lsp-vhdl-server 'ghdl-ls
+ ;;         lsp-use-native-json t
+ ;;         lsp-enable-indentation t
+ ;;         lsp-keep-workspace-alive t
+ ;;         lsp-enable-folding t
+ ;;         lsp-enable-xref t
+ ;;         lsp-prefer-flymake nil
+ ;;         lsp-auto-configure t
+ ;;         lsp-enable-snippet nil
+ ;;         lsp-restart 'auto-restart
+ ;;         lsp-enable-completion-at-point t
+ ;;         lsp-enable-imenu nil
+ ;;         )
 
-    (add-hook 'vhdl-mode-hook 'lsp))
+ ;;   (add-hook 'vhdl-mode-hook 'lsp))
 #+END_SRC
 
 *** VHDL-Mode
