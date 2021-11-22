@@ -27,7 +27,7 @@ Create one and install the requirements by:
     :ensure nil
     :config
     (when (member "DejaVu Sans Mono" (font-family-list))
-      (set-frame-font "DejaVu Sans Mono" t t))
+      (set-frame-font "DejaVu Sans Mono-10" t t))
     )
 #+END_SRC
 *** Custom split
@@ -189,6 +189,7 @@ It uses pluggable back-ends and front-ends to retrieve and display completion ca
     :config
     (global-flycheck-mode +1)
     (setq flycheck-python-flake8-executable "~/.emacs.d/pyenv/bin/python"
+          flycheck-flake8-maximum-line-length 90
           flycheck-python-pylint-executable "~/.emacs.d/pyenv/bin/python"))
 #+END_SRC
 
