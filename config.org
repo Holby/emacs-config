@@ -182,7 +182,7 @@ It uses pluggable back-ends and front-ends to retrieve and display completion ca
 
 *** Magit
 #+BEGIN_SRC emacs-lisp
-  ;; (use-package magit)
+  (use-package magit)
 #+END_SRC
 
 *** LSP-mode
