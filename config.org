@@ -21,15 +21,24 @@ Create one and install the requirements by:
     (setq inhibit-startup-screen t) ;; Disable startup screen
     (setq initial-frame-alist '((fullscreen . maximized))))
 #+END_SRC
+
 *** Set font
 #+BEGIN_SRC emacs-lisp
   (use-package emacs
     :ensure nil
     :config
     (when (member "DejaVu Sans Mono" (font-family-list))
-      (set-frame-font "DejaVu Sans Mono-10" t t))
-    )
+      (set-frame-font "DejaVu Sans Mono-10" t t)))
 #+END_SRC
+
+*** Use spaces, not tabs
+#+BEGIN_SRC emacs-lisp
+  (use-package emacs
+    :ensure nil
+    :config
+    (setq-default indent-tabs-mode nil))
+#+END_SRC
+
 *** Custom split
 #+BEGIN_SRC emacs-lisp
   (use-package emacs
