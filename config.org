@@ -343,7 +343,7 @@ allows you to jump between and revert them selectively.
     :hook
     (python-mode . (lambda ()
                      (setq lsp-python-ms-python-executable "~/.emacs.d/pyenv/bin/python")
-                     (setq lsp-python-ms-executable "~/.emacs.d/.cache/lsp/mspyls/Microsoft.Python.LanguageServer")
+                     (setq lsp-python-ms-executable (executable-find "Microsoft.Python.LanguageServer"))
                      (require 'lsp-python-ms)
                      (lsp)
                      (sleep-for 1)
