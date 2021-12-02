@@ -36,6 +36,7 @@
  (material-theme . [(20210904 1226) ((emacs (24 1))) "A Theme based on the colors of the Google Material Design" tar])
  (memoize . [(20200103 2036) nil "Memoization functions" tar])
  (org-bullets . [(20200317 1740) nil "Show bullets in org8 characters" tar])
+ (ox-gfm . [(20170628 2102) nil "Github Flavored Markdown Back-End for Org Export Engine" tar])
  (pfuture . [(20200425 1357) ((emacs (25 2))) "a simple wrapper around asynchronous processes" tar])
  (pkg-info . [(20150517 1143) ((epl (0 8))) "Information about packages" tar])
  (posframe . [(20211110 40) ((emacs (26 1))) "Pop a posframe (just a frame) at point" tar])

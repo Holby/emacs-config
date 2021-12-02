@@ -238,23 +238,23 @@ allows you to jump between and revert them selectively.
 
 *** LSP - Rust hdl
 #+BEGIN_SRC emacs-lisp
- (use-package lsp-mode
-   :demand t
-   :config
-   (setq lsp-vhdl-server-path (executable-find "vhdl_ls")
-         lsp-vhdl-server 'vhdl-ls
-         lsp-use-native-json t
-         lsp-enable-indentation t
-         lsp-keep-workspace-alive t
-         lsp-enable-folding t
-         lsp-enable-xref t
-         lsp-prefer-flymake nil
-         lsp-auto-configure t
-         lsp-enable-snippet nil
-         lsp-restart 'auto-restart
-         lsp-enable-completion-at-point t
-         lsp-enable-imenu nil)        
-   (add-hook 'vhdl-mode-hook 'lsp))
+  (use-package lsp-mode
+    :demand t
+    :config
+    (setq lsp-vhdl-server-path (executable-find "vhdl_ls")
+          lsp-vhdl-server 'vhdl-ls
+          lsp-use-native-json t
+          lsp-enable-indentation t
+          lsp-keep-workspace-alive t
+          lsp-enable-folding t
+          lsp-enable-xref t
+          lsp-prefer-flymake nil
+          lsp-auto-configure t
+          lsp-enable-snippet nil
+          lsp-restart 'auto-restart
+          lsp-enable-completion-at-point t
+          lsp-enable-imenu nil)
+    (add-hook 'vhdl-mode-hook 'lsp))
 #+END_SRC
 
 *** LSP GHDL + Rust hdl
@@ -522,12 +522,16 @@ ido can helpfully suggest the files whose paths are closest to your current stri
 *** Org Mode
 Some minimal org mode tweaks: org-bullets gives our headings (h1, h2,
 h3...) a more visually pleasing look.
+
+Use ox-gfm for GitHub Flavored Markdown
 #+BEGIN_SRC emacs-lisp
   (use-package org
     :hook ((org-mode . visual-line-mode)
            (org-mode . org-indent-mode)))
 
   (use-package org-bullets :hook (org-mode . org-bullets-mode))
+
+  (use-package ox-gfm :after org-mode)
 #+END_SRC
 
 *** Elpa mirror
