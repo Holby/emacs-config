@@ -135,7 +135,11 @@ side-by-side default for ediff.
 #+BEGIN_SRC emacs-lisp
   (use-package whitespace
     :ensure nil
-    :hook (before-save . whitespace-cleanup))
+    :preface
+    (defun prog-whitespace-cleanup ()
+      (when (derived-mode-p 'prog-mode)
+        (whitespace-cleanup)))
+    :hook (before-save . prog-whitespace-cleanup))
     #+END_SRC
 
 *** Good Scroll
