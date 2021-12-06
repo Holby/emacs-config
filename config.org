@@ -257,7 +257,8 @@ allows you to jump between and revert them selectively.
           lsp-enable-snippet nil
           lsp-restart 'auto-restart
           lsp-enable-completion-at-point t
-          lsp-enable-imenu nil)
+          lsp-enable-imenu nil
+          lsp-enable-file-watchers nil)
     (add-hook 'vhdl-mode-hook 'lsp))
 #+END_SRC
 
