@@ -323,6 +323,7 @@ allows you to jump between and revert them selectively.
           vhdl-prompt-for-comments nil
           vhdl-self-insert-comments nil
           vhdl-highlight-special-words t
+          vhdl-end-comment-column 93
           )
     :bind (
            :map vhdl-mode-map
